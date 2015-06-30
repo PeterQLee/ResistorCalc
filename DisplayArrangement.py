@@ -71,14 +71,14 @@ class ResistorGroup:#various inheritance
     
     
 class DisplayArrangement:
-    colormap=['black','brown','red','orange','yellow','green','blue','biolet','grey','white']
+    colormap=['black','brown','red','orange','yellow','green','blue','violet','grey','white']
     def __init__(self):
         self.tkroot=Tk()
         self.w=200
         self.h=200
-        self.canvasframe=Frame(self.tkroot,height=self.h,width=self.h)
+        self.canvasframe=Frame(self.tkroot,height=self.h,width=self.h,padx=5,pady=5)
         self.canvasframe.pack(side=TOP)
-        w=Canvas(self.canvasframe,width=self.w,height=self.h)
+        w=Canvas(self.canvasframe,width=self.w,height=self.h,bd=0,highlightthickness=0)
         w.pack()
         
         self.buttonframe=Frame(self.tkroot,height=30)
@@ -87,11 +87,11 @@ class DisplayArrangement:
         
         
         self.canvas=w
-        self.canvas.create_line(0,0,200,200)
-        self.newDraw('120,120,+60,-')
+        self.canvas.create_line(0,0,0,200)
+        
     def getResColor (self,resval):
         v=str(resval)
-        return (colormap[int(v[0])],colormap[int(v[1])],colormap[len(v)-1])
+        return (self.colormap[int(v[0])],self.colormap[int(v[1])],self.colormap[len(v)-2])
     def makeHUD(self):
         #last 30 pixels of y dedicated for buttons
         self.backbutton=Button(self.buttonframe,text="Back")
@@ -200,7 +200,7 @@ class DisplayArrangement:
                 cells.append(symbol)
                 canvasCells.append(ResistorGroup(symbol))#self.getResColor(symbol))
         obj=canvasCells[0]
-        factor=self.h/obj.height
+        factor=(self.h-40)/obj.height
         print(obj.rectcoords) #TMP
         print(obj.linecoords)
         for i in range(0,len(obj.rectcoords),2):
@@ -208,7 +208,13 @@ class DisplayArrangement:
                 #draw rectangle + appropritate color, for now we will just draw a regular rectangle
                 # we will make a function for resistor drawing later
             self.canvas.create_rectangle(obj.rectcoords[i]*factor,(obj.rectcoords[i+1])*factor,(obj.rectcoords[i]+0.5)*factor,(obj.rectcoords[i+1]+1)*factor)
-            print('eyy')
+            #now make colored rectangles
+            cols=self.getResColor(obj.values[i//2])
+            self.canvas.create_rectangle(obj.rectcoords[i]*factor,obj.rectcoords[i+1]*factor,(obj.rectcoords[i]+0.5)*factor,(obj.rectcoords[i+1]+1/3)*factor,fill=cols[0])
+            self.canvas.create_rectangle(obj.rectcoords[i]*factor,(obj.rectcoords[i+1]+1/3)*factor,(obj.rectcoords[i]+0.5)*factor,(obj.rectcoords[i+1]+2/3)*factor,fill=cols[1])
+            self.canvas.create_rectangle(obj.rectcoords[i]*factor,(obj.rectcoords[i+1]+2/3)*factor,(obj.rectcoords[i]+0.5)*factor,(obj.rectcoords[i+1]+1)*factor,fill=cols[2])
+            
+            
         for i in range(0,len(obj.linecoords),4):
             self.canvas.create_line(obj.linecoords[i]*factor,obj.linecoords[i+1]*factor,obj.linecoords[i+2]*factor,obj.linecoords[i+3]*factor)
         return canvasCells
